@@ -24,6 +24,20 @@ async function getNote(req,res){
 }
 app.get("/api/notes",getNote);  // get note ends here
 
+async function getNoteById(req,res){
+    try {
+        const note =  await Note.findById(req.params.id);
+        if (!note) {
+            return res.status(404).json({message : "Note not found"});
+        }
+        res.status(200).json(note);
+    } catch (error) {
+        console.error("Error fetching note", error);
+        res.status(500).json({message : "Error fetching note"});
+    }
+}
+app.get("/api/notes/:id",getNoteById);  // get note by id ends here
+
 // post note
 async function postNote(req,res){
     try {
@@ -55,13 +69,23 @@ async function putNote(req,res){
         res.status(500).json({message : "Error updating note"});
     }
 }
-app.put("/api/notes/:id",putNote);
+app.put("/api/notes/:id",putNote);   // put notes ends here
 
 // delete note
-function deleteNote(req,res){
-    res.status(200).json({message : " post deleted successfully"});
+async function deleteNote(req,res){
+    try {
+        const deletedNote = await Note.findByIdAndDelete(req.params.id);
+
+        if (!deletedNote) {
+            return res.status(404).json({message : "Note not found"});
+        }
+        res.status(200).json({deletedNote, message : " note deleted successfully"});
+    } catch (error) {
+        console.error("Error deleting note", error);
+        res.status(500).json({message : "Error deleting note"});
+    }
 }
-app.delete("/api/notes/:id",deleteNote);
+app.delete("/api/notes/:id",deleteNote);   // delete note ends here
 
 
 // server listening
