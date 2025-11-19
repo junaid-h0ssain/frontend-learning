@@ -87,10 +87,6 @@ async function deleteNote(req,res){
 }
 app.delete("/api/notes/:id",deleteNote);   // delete note ends here
 
-function funny(){
-    console.log("A funny joke!");
-}
-
 
 // server listening
 function hello () {
