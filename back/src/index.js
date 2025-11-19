@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { connectDB} from './config.js';
 import dotenv from 'dotenv';
+import Note from './note.js'
 
 dotenv.config(); 
 
@@ -9,18 +10,31 @@ dotenv.config();
 connectDB(); 
 
 const app = express();
+app.use(express.json());
 
 // get note
-function getNote(req,res){
-    let c = 5
-    res.status(200).send("You got "+ c +" notes");
+async function getNote(req,res){
+    try {
+        const notes =  await Note.find({});
+        res.status(200).json(notes);
+    } catch (error) {
+        console.error("Error fetching notes", error);
+        res.status(500).json({message : "Error fetching notes"});
+    }
 }
 app.get("/api/notes",getNote);
 
 // post note
-function postNote(req,res){
-    let c = "New Note wawa"
-    res.status(201).json({message : ""+c+ " posted successfully"});
+async function postNote(req,res){
+    try {
+        const { title, content } = req.body;
+        const newNote = new Note({ title, content });
+        await newNote.save();
+        res.status(201).json({message : " post created successfully"});
+    } catch (error) {
+        console.error("Error creating note", error);
+        res.status(500).json({message : "Error creating note"});
+    }
 }
 app.post("/api/notes",postNote);
 
