@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import Note from './note.js'
 
 dotenv.config(); 
+port = process.env.PORT || 5001;
 
 // connect to database
 connectDB(); 
@@ -92,4 +93,4 @@ app.delete("/api/notes/:id",deleteNote);   // delete note ends here
 function hello () {
     console.log("Server running on port 8080");
 }
-app.listen(5001, hello);
+app.listen(port, hello);
