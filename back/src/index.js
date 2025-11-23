@@ -2,16 +2,22 @@ import express from 'express';
 import path from 'path';
 import { connectDB} from './config.js';
 import dotenv from 'dotenv';
-import Note from './note.js'
+import Note from './note.js';
+import cors from 'cors';
 
 dotenv.config(); 
-port = process.env.PORT || 5001;
+const port = process.env.PORT || 5001;
 
 // connect to database
 connectDB(); 
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+    origin: "http://localhost:5173", // or whatever your frontend runs on
+    credentials: true
+}));
 
 // get note
 async function getNote(req,res){
@@ -91,6 +97,6 @@ app.delete("/api/notes/:id",deleteNote);   // delete note ends here
 
 // server listening
 function hello () {
-    console.log("Server running on port 8080");
+    console.log("Server running on port "+port);
 }
 app.listen(port, hello);

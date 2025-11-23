@@ -1,10 +1,17 @@
-import App from './App.svelte';
+import { mount } from 'svelte'
+import './app.css'
+import App from './App.svelte'
 
-const app = new App({
-	target: document.body,
-	props: {
-		name: 'world'
-	}
-});
+// async function getNotes() {
+//   const res = await fetch("http://localhost:5001/api/notes/");
+//   return await res.json();
+// }
 
-export default app;
+const app = mount(App, {
+  target: document.getElementById('app'),
+  // props: { getNotes }
+})
+
+export default app
+// @ts-ignore
+// window.Notes = Notes;
