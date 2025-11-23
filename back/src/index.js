@@ -15,7 +15,9 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: "http://localhost:5173", // or whatever your frontend runs on
+    origin: ["http://localhost:5173",
+            "http://localhost:5500"
+            ],
     credentials: true
 }));
 
@@ -93,7 +95,6 @@ async function deleteNote(req,res){
     }
 }
 app.delete("/api/notes/:id",deleteNote);   // delete note ends here
-
 
 // server listening
 function hello () {

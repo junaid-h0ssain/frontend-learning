@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input:focus, textarea:focus { outline: 2px solid #34D399; }
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        .htmx-request.note-card { opacity: 0.5; }
+    </style>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/mustache@4.2.0/mustache.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 p-4 sm:p-8 min-h-screen">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-extrabold text-green-400 mb-8 text-center">Note Taker</h1>
+
+        <script>
+            const API_URL = "http://localhost:5001/api/notes";
+            
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                return new Date(dateString).toLocaleDateString("en-GB", {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+            }
+
+            function refreshNotesList() {
+                htmx.ajax('GET', API_URL, {
+                    target: '#note-list-target',
+                    swap: 'innerHTML'
+                });
+                document.getElementById('create-title').value = '';
+                document.getElementById('create-content').value = '';
+            }
+
+            function loadEditForm(id, title, content) {
+                const template = document.getElementById('edit-form-template').innerHTML;
+                const html = Mustache.render(template, { id, title, content, API_URL });
+                document.getElementById('edit-form-container').innerHTML = html;
+            }
+
+            function deleteNote(id, title) {
+                if (confirm(`Delete '${title}'?`)) {
+                    htmx.ajax('DELETE', `${API_URL}/${id}`, {
+                        target: `#note-${id}`,
+                        swap: 'outerHTML'
+                    });
+                }
+            }
+
+            function handleCreateSuccess(e) {
+                if (e.detail.successful) {
+                    refreshNotesList();
+                }
+            }
+
+            function handleUpdateSuccess() {
+                document.getElementById('edit-form-container').innerHTML = '';
+                refreshNotesList();
+            }
+
+            function renderNotesList(notes) {
+                let html = '';
+                if (!notes || notes.length === 0) {
+                    html = '<p class="col-span-full text-center text-gray-500 py-10">No notes found.</p>';
+                } else {
+                    notes.forEach(note => {
+                        note.formattedCreatedAt = formatDate(note.createdAt);
+                        note.formattedUpdatedAt = formatDate(note.updatedAt);
+                        html += `
+                        <div class="note-card p-6 bg-gray-800 rounded-xl shadow-xl border border-gray-700 hover:border-green-500 transition duration-300 flex flex-col justify-between" id="note-${note._id}">
+                            <div>
+                                <h3 class="text-xl font-bold text-green-400 mb-2">${escapeHtml(note.title)}</h3>
+                                <p class="text-gray-300 mb-4 whitespace-pre-wrap">${escapeHtml(note.content)}</p>
+                            </div>
+                            
+
+                            <div class="mt-4 border-t border-gray-700 pt-3">
+                                <p class="text-xs text-gray-500">Created: ${note.formattedCreatedAt}</p>
+                                <p class="text-xs text-gray-500 mb-3">Edited: ${note.formattedUpdatedAt}</p>
+                                
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="loadEditForm('${note._id}', '${escapeHtml(note.title)}', '${escapeHtml(note.content)}')"
+                                            class="py-1 px-3 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded">
+                                        Edit
+                                    </button>
+                                    <button onclick="deleteNote('${note._id}', '${escapeHtml(note.title)}')"
+                                            class="py-1 px-3 bg-red-600 hover:bg-red-700 text-white text-sm rounded">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                }
+                document.getElementById('note-list-target').innerHTML = html;
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function loadNotes() {
+                fetch(API_URL)
+                    .then(res => res.json())
+                    .then(notes => renderNotesList(notes))
+                    .catch(err => console.error('Error loading notes:', err));
+            }
+
+            // Load notes on page load
+            document.addEventListener('DOMContentLoaded', loadNotes);
+        </script>
+
+        <div id="loading-indicator" class="htmx-indicator fixed top-0 left-0 right-0 p-2 bg-green-500 text-center font-bold z-50">Loading...</div>
+
+        <div id="edit-form-container" class="mb-8"></div>
+
+        <div class="mb-8 p-6 bg-gray-800 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-semibold text-white mb-4">Create New Note</h2>
+            <form onsubmit="handleCreateSubmit(event)" class="space-y-4">
+                <input type="text" id="create-title" name="title" placeholder="Title" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                <textarea id="create-content" name="content" rows="3" placeholder="Content" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white"></textarea>
+                <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg">Add Note</button>
+            </form>
+        </div>
+
+        <h2 class="text-3xl font-semibold text-white mb-4">All Notes</h2>
+        
+        <div id="note-list-target" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="col-span-full text-center text-gray-500">Loading notes...</p>
+        </div>
+    </div>
+
+    <template id="edit-form-template">
+        <div class="p-6 bg-gray-800 rounded-xl shadow-2xl border border-yellow-600">
+            <h2 class="text-2xl font-semibold text-white mb-4">Edit Note</h2>
+            <form onsubmit="handleEditSubmit(event, '{{id}}')" class="space-y-4">
+                <input type="hidden" name="id" value="{{id}}">
+                <input type="text" name="title" value="{{title}}" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                <textarea name="content" rows="4" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">{{content}}</textarea>
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg">Save</button>
+                    <button type="button" onclick="document.getElementById('edit-form-container').innerHTML = ''" class="py-3 px-6 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </template>
+
+    <script>
+        function handleCreateSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('create-title').value;
+            const content = document.getElementById('create-content').value;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            })
+            .then(res => res.json())
+            .then(() => {
+                refreshNotesList();
+            })
+            .catch(err => console.error('Error creating note:', err));
+        }
+
+        function handleEditSubmit(e, id) {
+            e.preventDefault();
+            const form = e.target;
+            const title = form.querySelector('input[name="title"]').value;
+            const content = form.querySelector('textarea[name="content"]').value;
+
+            fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            })
+            .then(res => res.json())
+            .then(() => {
+                handleUpdateSuccess();
+            })
+            .catch(err => console.error('Error updating note:', err));
+        }
+    </script>
+</body>
+</html>
