@@ -16,7 +16,7 @@ app.use(express.json());
 // get note
 async function getNote(req,res){
     try {
-        const notes =  await Note.find({});
+        const notes =  await Note.find({}).sort({createdAt: -1}); //sorts by newest first
         res.status(200).json(notes);
     } catch (error) {
         console.error("Error fetching notes", error);
