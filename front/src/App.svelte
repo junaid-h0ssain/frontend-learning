@@ -4,23 +4,28 @@
   let notes = [];
   let newTitle = '';
   let newContent = '';
-  let message = '';
   let isEditing = false;
   let editId = null;
   let editTitle = '';
   let editContent = '';
+  let message = '';
 
   const API_URL = "http://localhost:5001/api/notes";
 
   async function loadNotes() {
     try {
-      const res = await fetch("http://localhost:5001/api/notes/", {method: "GET"});
-
-      notes = await res.json();
+      const res = await fetch(API_URL);
+      if (res.ok) {
+        notes = await res.json();
+      } else {
+        message = `Failed to load notes: ${res.statusText}`;
+      }
     } catch (err) {
       console.error("Failed to load notes:", err);
+      message = "Error connecting to the server.";
     }
   }
+
   onMount(loadNotes);
 
   async function createNote() {
@@ -42,7 +47,7 @@
         message = 'Note created successfully!';
         newTitle = '';
         newContent = '';
-        await loadNotes(); 
+        await loadNotes();
       } else {
         message = `Failed to create note: ${res.statusText}`;
       }
@@ -60,7 +65,7 @@
 
       if (res.ok) {
         message = 'Note deleted successfully!';
-        await loadNotes(); // Reload notes
+        await loadNotes(); 
       } else {
         message = `Failed to delete note: ${res.statusText}`;
       }
@@ -112,19 +117,16 @@
     editTitle = '';
     editContent = '';
   }
-
 </script>
 
 <main>
-  <h2>Your Notes</h2>
+  <h1>Note Taking App</h1>
 
   {#if message}
     <p class="status-message">{message}</p>
   {/if}
 
-  {#if notes.length === 0}
-    <p>No notes found or still loading...</p>
-  {/if}
+  ---
 
   {#if isEditing}
     <section class="form-container">
@@ -149,6 +151,10 @@
       <button type="submit" class="create-btn">Add Note</button>
     </form>
   </section>
+
+  ---
+
+  <h2>Your Notes</h2>
 
   {#if notes.length === 0}
     <p>No notes found. Create one above!</p>
@@ -187,7 +193,7 @@
   }
 
   h1, h2, h3 {
-    color: #4CAF50; /* Green highlight */
+    color: #4CAF50; 
   }
 
   .status-message {
@@ -198,7 +204,6 @@
     margin-bottom: 20px;
   }
 
-  /* Form Styles */
   .form-container {
     padding: 20px;
     background: #1e1e1e;
@@ -222,7 +227,6 @@
     box-sizing: border-box;
   }
 
-  /* Button Styles */
   button {
     padding: 10px 15px;
     border: none;
@@ -248,7 +252,7 @@
   }
 
   .save-btn {
-    background: #2196F3; /* Blue */
+    background: #2196F3; 
     color: white;
   }
 
@@ -257,7 +261,7 @@
   }
 
   .cancel-btn {
-    background: #f44336; /* Red */
+    background: #f44336; 
     color: white;
   }
 
@@ -265,10 +269,9 @@
     background: #da190b;
   }
 
-  /* Note Card Styles */
   .notes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
     gap: 20px;
   }
 
@@ -307,7 +310,7 @@
   }
 
   .edit-btn {
-    background: #FFC107; /* Amber */
+    background: #FFC107;
     color: black;
   }
 
@@ -316,7 +319,7 @@
   }
 
   .delete-btn {
-    background: #f44336; /* Red */
+    background: #f44336; 
     color: white;
   }
 
