@@ -14,10 +14,23 @@ connectDB();
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : [
+      "http://localhost:5173",
+      "http://localhost:5500",
+      "https://frontend-learning-omega.vercel.app"
+    ];
+
 app.use(cors({
-    origin: ["http://localhost:5173",
-            "http://localhost:5500"
-            ],
+    origin: function (origin, callback) {
+        // allow non-browser requests (like curl, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS policy: This origin is not allowed'));
+    },
     credentials: true
 }));
 

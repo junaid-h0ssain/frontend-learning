@@ -121,6 +121,7 @@
 
 <main>
   <h1>Note Taking App</h1>
+  <a href="./home.html" class="button">click here for a different version</a><br>
 
   {#if message}
     <p class="status-message">{message}</p>

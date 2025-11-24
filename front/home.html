@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note App</title>
+    <meta name="api-url" content="/api/notes">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -21,7 +22,8 @@
         <h1 class="text-4xl font-extrabold text-green-400 mb-8 text-center">Note Taker</h1>
 
         <script>
-            const API_URL = "http://localhost:5001/api/notes";
+            const metaApi = document.querySelector('meta[name="api-url"]');
+            const API_URL = metaApi ? metaApi.content : '/api/notes';
             
             function formatDate(dateString) {
                 if (!dateString) return '';
