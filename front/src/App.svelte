@@ -10,7 +10,7 @@
   let editContent = '';
   let message = '';
 
-  const API_URL = "http://localhost:5001/api/notes";
+  const API_URL = "https://frontend-learning-001u.onrender.com/api/notes";
 
   async function loadNotes() {
     try {
@@ -121,7 +121,6 @@
 
 <main>
   <h1>Note Taking App</h1>
-  <a href="./home.html" class="button">click here for a different version</a><br>
 
   {#if message}
     <p class="status-message">{message}</p>
@@ -177,6 +176,9 @@
       {/each}
     </div>
   {/if}
+
+  <br><a href="./home.html" class="button">click here for a different version using htmx (may not work)</a><br>
+
 </main>
 
 <style>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note App</title>
-    <meta name="api-url" content="/api/notes">
+    <meta name="api-url" content="https://frontend-learning-001u.onrender.com/api/notes">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -23,7 +23,7 @@
 
         <script>
             const metaApi = document.querySelector('meta[name="api-url"]');
-            const API_URL = metaApi ? metaApi.content : '/api/notes';
+            const API_URL = metaApi ? metaApi.content : 'https://frontend-learning-001u.onrender.com/api/notes';
             
             function formatDate(dateString) {
                 if (!dateString) return '';
