@@ -20,7 +20,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
         "http://localhost:5173",
         "http://localhost:5500",
         "https://frontend-learning-omega.vercel.app",
-        "https://frontend-learning-two.vercel.app/"
+        "https://frontend-learning-two.vercel.app"
     ];
 
 app.use(cors({
