@@ -17,9 +17,10 @@ app.use(express.json());
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : [
-      "http://localhost:5173",
-      "http://localhost:5500",
-      "https://frontend-learning-omega.vercel.app"
+        "http://localhost:5173",
+        "http://localhost:5500",
+        "https://frontend-learning-omega.vercel.app",
+        "https://frontend-learning-two.vercel.app/"
     ];
 
 app.use(cors({
